@@ -212,7 +212,7 @@ class FetchBuilder {
                     log?.(text);
                     log = null;
                     logError = null;
-                    throw new Error(`Http Error ${r.status} for ${this.request.url}\n${text}`);
+                    throw new Error(`Fetch failed with error ${r.status} for ${this.request.url}\n${text}`);
                 }
             }
             log?.(`${this.request.method ?? "GET"} ${this.request.url}`);
