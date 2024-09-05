@@ -1,8 +1,7 @@
 {
     "compilerOptions": {
-        "jsx": "react",
         "target": "ES2021",
-        "module":"NodeNext",
+        "module":"CommonJS",
         "incremental": true,
         "sourceMap": true,
         "declaration": true,

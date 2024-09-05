@@ -32,12 +32,37 @@ export default class FetchBuilder {
         return this.method(url, "DELETE");
     }
 
+    public static header(name: string, value: string) {
+        return new FetchBuilder({ headers: { url: "", method: "POST", [name]: value }});
+    }
+
     public static method(url, method: string) {
         return new FetchBuilder({ url, method });
     }
 
     private constructor(private readonly request: IRequest) {
     }
+
+    public get(url) {
+        return this.method(url, "GET");
+    }
+
+    public put(url) {
+        return this.method(url, "PUT");
+    }
+
+    public post(url) {
+        return this.method(url, "POST");
+    }
+
+    public delete(url) {
+        return this.method(url, "DELETE");
+    }
+
+    public method(url: string, method: string ) {
+        this.append({ url, method });
+    }
+
 
     // public cancelToken(cancelToken: CancelToken) {
     //     const ac = new AbortController();
@@ -110,7 +135,7 @@ export default class FetchBuilder {
         return this.append({ url });
     }
 
-    public async responseAsText(ensureSuccess = true) {
+    public async asText(ensureSuccess = true) {
         const r = await this.response();
         if (ensureSuccess) {
             await this.ensureSuccess(r);
@@ -118,7 +143,7 @@ export default class FetchBuilder {
         return await r.text();
     }
 
-    public async responseAsBlob(ensureSuccess = true) {
+    public async asBlob(ensureSuccess = true) {
         const r = await this.response();
         if (ensureSuccess) {
             await this.ensureSuccess(r);
@@ -126,12 +151,39 @@ export default class FetchBuilder {
         return await r.blob();
     }
 
-    public async responseAsJson<T>(ensureSuccess = true) {
+    public async asJson<T = any>(ensureSuccess = true) {
         const r = await this.response();
         if (ensureSuccess) {
             await this.ensureSuccess(r);
         }
         return (await r.json()) as T;
+    }
+
+    public async asJsonResponse<T = any>(ensureSuccess = true) {
+        const r = await this.response();
+        if (ensureSuccess) {
+            await this.ensureSuccess(r);
+        }
+        const result = (await r.json()) as T;
+        return { result, headers: r.headers, status: r.status };
+    }
+
+    public async asTextResponse(ensureSuccess = true) {
+        const r = await this.response();
+        if (ensureSuccess) {
+            await this.ensureSuccess(r);
+        }
+        const result = await r.text();
+        return { result, headers: r.headers, status: r.status };
+    }
+
+    public async asBlobResponse(ensureSuccess = true) {
+        const r = await this.response();
+        if (ensureSuccess) {
+            await this.ensureSuccess(r);
+        }
+        const result = await r.blob();
+        return { result, headers: r.headers, status: r.status };
     }
 
     public response() {

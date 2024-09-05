@@ -1,5 +1,5 @@
 {
-  "name": "fetch-builder",
+  "name": "@web-atoms/fetch-builder",
   "version": "1.0.0",
   "description": "Simple Fluent Interface to call fetch",
   "main": "index.js",
