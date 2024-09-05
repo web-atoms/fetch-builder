@@ -12,7 +12,7 @@ export function buildUrl(strings: TemplateStringsArray, ... p: any[]) {
 
 type IBuilder = (r: Request) => Request;
 
-type IRequest = { url?: string } & RequestInit;
+type IRequest = { url?: string, log?: (...a: any[]) => void, logError?: (...a: any[]) => void } & RequestInit;
 
 export default class FetchBuilder {
 
@@ -43,6 +43,14 @@ export default class FetchBuilder {
     private constructor(private readonly request: IRequest) {
     }
 
+    public log(logger: (...a: any[]) => void) {
+        return this.append({ log: logger });
+    }
+
+    public logWhenFailed(logger: (...a: any[]) => void) {
+        return this.append({ logError: logger });
+    }
+
     public get(url) {
         return this.method(url, "GET");
     }
@@ -62,7 +70,6 @@ export default class FetchBuilder {
     public method(url: string, method: string ) {
         this.append({ url, method });
     }
-
 
     // public cancelToken(cancelToken: CancelToken) {
     //     const ac = new AbortController();
@@ -136,78 +143,84 @@ export default class FetchBuilder {
     }
 
     public async asText(ensureSuccess = true) {
-        const r = await this.response();
-        if (ensureSuccess) {
-            await this.ensureSuccess(r);
-        }
-        return await r.text();
+        const { result } = await this.asTextResponse(ensureSuccess);
+        return result;
     }
 
     public async asBlob(ensureSuccess = true) {
-        const r = await this.response();
-        if (ensureSuccess) {
-            await this.ensureSuccess(r);
-        }
-        return await r.blob();
+        const { result } = await this.asBlobResponse(ensureSuccess);
+        return result;
     }
 
     public async asJson<T = any>(ensureSuccess = true) {
-        const r = await this.response();
-        if (ensureSuccess) {
-            await this.ensureSuccess(r);
-        }
-        return (await r.json()) as T;
+        const { result } = await this.asJsonResponse<T>(ensureSuccess);
+        return result;
     }
 
     public async asJsonResponse<T = any>(ensureSuccess = true) {
-        const r = await this.response();
-        if (ensureSuccess) {
-            await this.ensureSuccess(r);
-        }
-        const result = (await r.json()) as T;
-        return { result, headers: r.headers, status: r.status };
+        return this.execute(ensureSuccess, (x) => x.json());
     }
 
     public async asTextResponse(ensureSuccess = true) {
-        const r = await this.response();
-        if (ensureSuccess) {
-            await this.ensureSuccess(r);
-        }
-        const result = await r.text();
-        return { result, headers: r.headers, status: r.status };
+        return this.execute(ensureSuccess, (x) => x.text());
     }
 
-    public async asBlobResponse(ensureSuccess = true) {
-        const r = await this.response();
-        if (ensureSuccess) {
-            await this.ensureSuccess(r);
-        }
-        const result = await r.blob();
-        return { result, headers: r.headers, status: r.status };
+    public asBlobResponse(ensureSuccess = true) {
+        return this.execute(ensureSuccess, (x) => x.blob());
     }
 
-    public response() {
-        return fetch(this.request.url, this.request);
+    public async execute<T>(ensureSuccess = true, postProcessor: (r: Response) => T): Promise<{ result: T, headers: any, status: number }> {
+
+        try {
+
+            const { headers, logError } = this.request;
+            let { log } = this.request;
+            const r = await fetch(this.request.url, this.request);
+            if (ensureSuccess) {
+                if (r.status > 300) {
+                    log = logError;
+                    log?.(`fetch: ${this.request.method ?? "GET"} ${this.request.url}`);
+                    if (log && headers) {
+                        for (const key in headers) {
+                            if ((Object.hasOwn && Object.hasOwn(headers,key)) || headers.hasOwnProperty(key)) {
+                                log?.(`${key}: ${headers[key]}`);
+                            }
+                        }
+                    }
+                    const type = r.headers.get("content-type");
+                    if (/\/json/i.test(type)) {
+                        const json: any = await r.json();
+                        const message = json.title
+                        ?? json.detail
+                        ?? json.message
+                        ?? json.exceptionMessage
+                        ?? "Json Server Error";
+                        throw new JsonError(message, json);
+                    }
+                    const text = await r.text();
+                    throw new Error(`Failed for ${this.request.url}\n${text}`);
+                }
+            }
+            log?.(`${this.request.method ?? "GET"} ${this.request.url}`);
+            if (log && headers) {
+                for (const key in headers) {
+                    if ((Object.hasOwn && Object.hasOwn(headers,key)) || headers.hasOwnProperty(key)) {
+                        log?.(`${key}: ${headers[key]}`);
+                    }
+                }
+            }
+            const result = await postProcessor(r);
+            if (log) {
+                log(`${r.status} ${r.statusText || "OK"}`)
+                log(result);
+            }
+            return { result, headers: r.headers, status: r.status };
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     }
 
-    private async ensureSuccess(r: Response) {
-        if (r.status <= 300) {
-            return;
-        }
-        // is json...
-        const type = r.headers.get("content-type");
-        if (/\/json/i.test(type)) {
-            const json: any = await r.json();
-            const message = json.title
-            ?? json.detail
-            ?? json.message
-            ?? json.exceptionMessage
-            ?? "Json Server Error";
-            throw new JsonError(message, json);
-        }
-        const text = await r.text();
-        throw new Error(`Failed for ${this.request.url}\n${text}`);
-    }
 
     private append(r: IRequest) {
         return new FetchBuilder({ ... this.request, ... r});

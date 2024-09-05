@@ -37,3 +37,21 @@ This is important as you can configure builder once with default headers.
         .asJson<IResult>();
 
 ```
+
+## Log Failed Requests
+
+This will log only failed requests.
+
+```javascript
+
+    const client = FetchBuilder
+        .header("x-api-key", someKey)
+        .logWhenFailed(console.error);
+
+    const result = await client.post("/api/orders/create")
+        .jsonBody({
+            productId: 3
+        })
+        .asJson<IResult>();
+
+```
