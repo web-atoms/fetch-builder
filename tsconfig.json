@@ -6,7 +6,7 @@
         "sourceMap": true,
         "declaration": true,
         "declarationMap": true,
-        "outDir": "dist",
+        "outDir": "./",
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "experimentalDecorators": true,
