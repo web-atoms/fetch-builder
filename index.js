@@ -207,11 +207,11 @@ class FetchBuilder {
                 url = newUrl;
             }
             else {
-                if (newUrl.startsWith("/") || newUrl.startsWith(".")) {
-                    url = new URL(newUrl, url).toString();
+                if (/^https?\:\/\//i.test(newUrl)) {
+                    url = newUrl;
                 }
                 else {
-                    url = newUrl;
+                    url = (new URL(newUrl, url)).toString();
                 }
             }
         }
