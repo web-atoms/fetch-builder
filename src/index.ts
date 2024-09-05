@@ -1,21 +1,24 @@
-export function buildUrl(strings: TemplateStringsArray, ... p: any[]) {
-    let r = "";
-    for (let index = 0; index < strings.length; index++) {
-        const element = strings[index];
-        r += element;
-        if(index < p.length) {
-            r += encodeURIComponent(p[index]);
-        }
-    }
-    return r;
-}
 
 type IBuilder = (r: Request) => Request;
 
 type IRequest = { url?: string, log?: (...a: any[]) => void, logError?: (...a: any[]) => void } & RequestInit;
 
-export default class FetchBuilder {
+class FetchBuilder {
 
+    static JsonError: typeof JsonError;
+    
+    static buildUrl(strings: TemplateStringsArray, ... p: any[]) {
+        let r = "";
+        for (let index = 0; index < strings.length; index++) {
+            const element = strings[index];
+            r += element;
+            if(index < p.length) {
+                r += encodeURIComponent(p[index]);
+            }
+        }
+        return r;
+    }
+    
     public static get(url) {
         return this.method(url, "GET");
     }
@@ -228,8 +231,12 @@ export default class FetchBuilder {
 
 }
 
-export class JsonError extends Error {
+class JsonError extends Error {
     constructor(message, public readonly json) {
         super(message);
     }
 }
+
+FetchBuilder.JsonError = JsonError;
+
+export = FetchBuilder;
