@@ -174,10 +174,10 @@ class FetchBuilder {
 
     public async execute<T>(ensureSuccess = true, postProcessor: (r: Response) => T): Promise<{ result: T, headers: any, status: number }> {
 
+        let { log, logError } = this.request;
         try {
 
-            const { headers, logError } = this.request;
-            let { log } = this.request;
+            const { headers } = this.request;
             const r = await fetch(this.request.url, this.request);
             if (ensureSuccess) {
                 if (r.status > 300) {
@@ -190,17 +190,24 @@ class FetchBuilder {
                             }
                         }
                     }
+                    log?.(`${r.status} ${r.statusText || "Http Error"}`);
                     const type = r.headers.get("content-type");
                     if (/\/json/i.test(type)) {
                         const json: any = await r.json();
+                        log?.(json);
                         const message = json.title
                         ?? json.detail
                         ?? json.message
                         ?? json.exceptionMessage
                         ?? "Json Server Error";
+                        log = null;
+                        logError = null;
                         throw new JsonError(message, json);
                     }
                     const text = await r.text();
+                    log?.(text);
+                    log = null;
+                    logError = null;
                     throw new Error(`Failed for ${this.request.url}\n${text}`);
                 }
             }
@@ -219,7 +226,7 @@ class FetchBuilder {
             }
             return { result, headers: r.headers, status: r.status };
         } catch (error) {
-            console.error(error);
+            log?.(error);
             throw error;
         }
     }
