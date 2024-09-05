@@ -2,12 +2,15 @@
 Simple Fluent Interface to call fetch
 
 # Why?
+To make REST API easier. Lets have following examples.
 
+## Download Text
 ```javascript
 const text = await FetchBuilder.get("https://someurl.com")
-    .responseAsText();
+    .asText();
 ```
 
+## Post Json body and retrieve Json
 ```javascript
 const result = await FetchBuilder.post("https://someapi.com")
     .header("x-api-key", someKey)
@@ -15,9 +18,13 @@ const result = await FetchBuilder.post("https://someapi.com")
         name: "bla bla bla",
         email: "bla@bla.bla"
     })
-    .responseAsJson<IResult>();
+    .asJson<IResult>();
 ```
-Reuse builder.
+
+## Reuse builder
+
+This is important as you can configure builder once with default headers.
+
 ```javascript
 
     const client = FetchBuilder
@@ -27,6 +34,6 @@ Reuse builder.
         .jsonBody({
             productId: 3
         })
-        .responseAsJson<IResult>();
+        .asJson<IResult>();
 
 ```
