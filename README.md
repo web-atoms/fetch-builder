@@ -55,3 +55,17 @@ This will log only failed requests.
         .asJson<IResult>();
 
 ```
+
+## Query String
+
+```javascript
+    const client = FetchBuilder
+        .header("x-api-key", someKey)
+        .logWhenFailed(console.error);
+
+    const result = await client.get("/api/orders/reports")
+        .query("year-start", 2015)
+        .query("year-end", 2022)
+        .query("search-text", "social mail") // <-- this will be encoded
+        .asJson();
+```
