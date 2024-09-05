@@ -161,7 +161,7 @@ class FetchBuilder {
     }
 
     public async asJsonResponse<T = any>(ensureSuccess = true) {
-        return this.execute(ensureSuccess, (x) => x.json());
+        return this.execute(ensureSuccess, (x) => x.json() as T);
     }
 
     public async asTextResponse(ensureSuccess = true) {
