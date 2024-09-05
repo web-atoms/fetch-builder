@@ -71,7 +71,7 @@ class FetchBuilder {
     }
 
     public method(url: string, method: string ) {
-        this.append({ url, method });
+        return this.append({ url, method });
     }
 
     // public cancelToken(cancelToken: CancelToken) {
