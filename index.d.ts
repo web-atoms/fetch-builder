@@ -1,1 +1,1 @@
-import "./dist/FetchBuilder";
+import "./dist/FetchBuilder.d.ts";
