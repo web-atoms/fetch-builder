@@ -1,22 +1,24 @@
 /// <reference types="node" />
 /// <reference types="node" />
-export declare function buildUrl(strings: TemplateStringsArray, ...p: any[]): string;
-export default class FetchBuilder {
+declare class FetchBuilder {
     private readonly request;
+    static JsonError: typeof JsonError;
+    static buildUrl(strings: TemplateStringsArray, ...p: any[]): string;
     static get(url: any): FetchBuilder;
     static put(url: any): FetchBuilder;
     static post(url: any): FetchBuilder;
     static delete(url: any): FetchBuilder;
+    static url(url: string): FetchBuilder;
     static header(name: string, value: string): FetchBuilder;
     static method(url: any, method: string): FetchBuilder;
     private constructor();
     log(logger: (...a: any[]) => void): FetchBuilder;
     logWhenFailed(logger: (...a: any[]) => void): FetchBuilder;
-    get(url: any): void;
-    put(url: any): void;
-    post(url: any): void;
-    delete(url: any): void;
-    method(url: string, method: string): void;
+    get(url: any): FetchBuilder;
+    put(url: any): FetchBuilder;
+    post(url: any): FetchBuilder;
+    delete(url: any): FetchBuilder;
+    method(url: string, method: string): FetchBuilder;
     signal(signal: AbortSignal): FetchBuilder;
     form(name: string, value: string): FetchBuilder;
     form(name: string, value: Blob, fileName: string): FetchBuilder;
@@ -26,9 +28,9 @@ export default class FetchBuilder {
     query(name: string, value: any, encode?: boolean): FetchBuilder;
     asText(ensureSuccess?: boolean): Promise<string>;
     asBlob(ensureSuccess?: boolean): Promise<import("buffer").Blob>;
-    asJson<T = any>(ensureSuccess?: boolean): Promise<unknown>;
+    asJson<T = any>(ensureSuccess?: boolean): Promise<T>;
     asJsonResponse<T = any>(ensureSuccess?: boolean): Promise<{
-        result: Promise<unknown>;
+        result: T;
         headers: any;
         status: number;
     }>;
@@ -49,8 +51,9 @@ export default class FetchBuilder {
     }>;
     private append;
 }
-export declare class JsonError extends Error {
+declare class JsonError extends Error {
     readonly json: any;
     constructor(message: any, json: any);
 }
+export = FetchBuilder;
 //# sourceMappingURL=index.d.ts.map

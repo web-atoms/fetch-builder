@@ -1,19 +1,16 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JsonError = exports.buildUrl = void 0;
-function buildUrl(strings, ...p) {
-    let r = "";
-    for (let index = 0; index < strings.length; index++) {
-        const element = strings[index];
-        r += element;
-        if (index < p.length) {
-            r += encodeURIComponent(p[index]);
-        }
-    }
-    return r;
-}
-exports.buildUrl = buildUrl;
 class FetchBuilder {
+    static buildUrl(strings, ...p) {
+        let r = "";
+        for (let index = 0; index < strings.length; index++) {
+            const element = strings[index];
+            r += element;
+            if (index < p.length) {
+                r += encodeURIComponent(p[index]);
+            }
+        }
+        return r;
+    }
     static get(url) {
         return this.method(url, "GET");
     }
@@ -25,6 +22,9 @@ class FetchBuilder {
     }
     static delete(url) {
         return this.method(url, "DELETE");
+    }
+    static url(url) {
+        return this.method(url, "GET");
     }
     static header(name, value) {
         return new FetchBuilder({ headers: { url: "", method: "POST", [name]: value } });
@@ -54,7 +54,7 @@ class FetchBuilder {
         return this.method(url, "DELETE");
     }
     method(url, method) {
-        this.append({ url, method });
+        return this.append({ url, method });
     }
     // public cancelToken(cancelToken: CancelToken) {
     //     const ac = new AbortController();
@@ -142,9 +142,9 @@ class FetchBuilder {
         return this.execute(ensureSuccess, (x) => x.blob());
     }
     async execute(ensureSuccess = true, postProcessor) {
+        let { log, logError } = this.request;
         try {
-            const { headers, logError } = this.request;
-            let { log } = this.request;
+            const { headers } = this.request;
             const r = await fetch(this.request.url, this.request);
             if (ensureSuccess) {
                 if (r.status > 300) {
@@ -157,17 +157,24 @@ class FetchBuilder {
                             }
                         }
                     }
+                    log?.(`${r.status} ${r.statusText || "Http Error"}`);
                     const type = r.headers.get("content-type");
                     if (/\/json/i.test(type)) {
                         const json = await r.json();
+                        log?.(json);
                         const message = json.title
                             ?? json.detail
                             ?? json.message
                             ?? json.exceptionMessage
                             ?? "Json Server Error";
+                        log = null;
+                        logError = null;
                         throw new JsonError(message, json);
                     }
                     const text = await r.text();
+                    log?.(text);
+                    log = null;
+                    logError = null;
                     throw new Error(`Failed for ${this.request.url}\n${text}`);
                 }
             }
@@ -187,20 +194,40 @@ class FetchBuilder {
             return { result, headers: r.headers, status: r.status };
         }
         catch (error) {
-            console.error(error);
+            log?.(error);
             throw error;
         }
     }
     append(r) {
-        return new FetchBuilder({ ...this.request, ...r });
+        // we will try to merge url here..
+        let { url } = this.request;
+        const { url: newUrl } = r;
+        if (newUrl) {
+            if (!url) {
+                url = newUrl;
+            }
+            else {
+                if (newUrl.startsWith("/") || newUrl.startsWith(".")) {
+                    url = new URL(newUrl, url).toString();
+                }
+                else {
+                    url = newUrl;
+                }
+            }
+        }
+        return new FetchBuilder({
+            ...this.request,
+            ...r,
+            url
+        });
     }
 }
-exports.default = FetchBuilder;
 class JsonError extends Error {
     constructor(message, json) {
         super(message);
         this.json = json;
     }
 }
-exports.JsonError = JsonError;
+FetchBuilder.JsonError = JsonError;
+module.exports = FetchBuilder;
 //# sourceMappingURL=index.js.map

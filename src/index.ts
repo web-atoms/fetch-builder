@@ -35,6 +35,10 @@ class FetchBuilder {
         return this.method(url, "DELETE");
     }
 
+    public static url(url: string) {
+        return this.method(url, "GET");
+    }
+
     public static header(name: string, value: string) {
         return new FetchBuilder({ headers: { url: "", method: "POST", [name]: value }});
     }
@@ -233,7 +237,27 @@ class FetchBuilder {
 
 
     private append(r: IRequest) {
-        return new FetchBuilder({ ... this.request, ... r});
+
+        // we will try to merge url here..
+        let { url } = this.request;
+        const { url: newUrl } = r;
+        if (newUrl) {
+            if (!url) {
+                url = newUrl;
+            } else {
+                if (newUrl.startsWith("/") || newUrl.startsWith(".")) {
+                    url = new URL(newUrl, url).toString();
+                } else {
+                    url = newUrl;
+                }
+            }
+        }
+
+        return new FetchBuilder({
+            ... this.request,
+            ... r,
+            url
+        });
     }
 
 }

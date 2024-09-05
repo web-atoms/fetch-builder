@@ -28,6 +28,7 @@ This is important as you can configure builder once with default headers.
 ```javascript
 
     const client = FetchBuilder
+        .url("https://somewhere.com/")
         .header("x-api-key", someKey);
 
     const result = await client.post("/api/orders/create")
@@ -45,6 +46,7 @@ This will log only failed requests.
 ```javascript
 
     const client = FetchBuilder
+        .url("https://somewhere.com/")
         .header("x-api-key", someKey)
         .logWhenFailed(console.error);
 
@@ -60,6 +62,7 @@ This will log only failed requests.
 
 ```javascript
     const client = FetchBuilder
+        .url("https://somewhere.com/")
         .header("x-api-key", someKey)
         .logWhenFailed(console.error);
 
