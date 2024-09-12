@@ -165,7 +165,12 @@ class FetchBuilder {
     }
 
     public async asJsonResponse<T = any>(ensureSuccess = true) {
-        return this.execute(ensureSuccess, (x) => x.json() as T);
+        return this.execute<T>(ensureSuccess, async (x) => {
+            if(!/json/i.test(x.headers.get("content-type"))) {
+                return x.json() as T;
+            }
+            throw new Error(`Failed to parse json from ${this.request.url}\n${await x.text()}`)
+        });
     }
 
     public async asTextResponse(ensureSuccess = true) {
@@ -176,7 +181,8 @@ class FetchBuilder {
         return this.execute(ensureSuccess, (x) => x.blob());
     }
 
-    public async execute<T>(ensureSuccess = true, postProcessor: (r: Response) => T): Promise<{ result: T, headers: any, status: number }> {
+    public async execute<T>(ensureSuccess = true,
+        postProcessor: (r: Response) => T | Promise<T>): Promise<{ result: T, headers: any, status: number }> {
 
         let { log, logError } = this.request;
         try {
