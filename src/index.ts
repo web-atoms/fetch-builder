@@ -167,9 +167,9 @@ class FetchBuilder {
     public async asJsonResponse<T = any>(ensureSuccess = true) {
         return this.execute<T>(ensureSuccess, async (x) => {
             if(!/json/i.test(x.headers.get("content-type"))) {
-                return x.json() as T;
+                throw new Error(`Failed to parse json from ${this.request.url}\n${await x.text()}`);
             }
-            throw new Error(`Failed to parse json from ${this.request.url}\n${await x.text()}`)
+            return x.json() as T;
         });
     }
 
