@@ -1,3 +1,4 @@
+import { Agent } from "http";
 
 type IBuilder = (r: Request) => Request;
 
@@ -179,6 +180,10 @@ class FetchBuilder {
 
     public asBlobResponse(ensureSuccess = true) {
         return this.execute(ensureSuccess, (x) => x.blob());
+    }
+
+    public dispatcher(dispatcher: any) {
+        return this.append({ dispatcher });
     }
 
     public async execute<T>(ensureSuccess = true,
