@@ -2,7 +2,7 @@ import { Agent } from "http";
 
 type IBuilder = (r: Request) => Request;
 
-type IRequest = { url?: string, log?: (...a: any[]) => void, logError?: (...a: any[]) => void } & RequestInit;
+type IRequest = { fetchProxy?: any, url?: string, log?: (...a: any[]) => void, logError?: (...a: any[]) => void } & RequestInit;
 
 class FetchBuilder {
 
@@ -186,14 +186,18 @@ class FetchBuilder {
         return this.append({ dispatcher });
     }
 
+    public withFetchProxy(fetchProxy: any) {
+        return this.append({ fetchProxy });
+    }
+
     public async execute<T>(ensureSuccess = true,
         postProcessor: (r: Response) => T | Promise<T>): Promise<{ result: T, headers: any, status: number }> {
 
         let { log, logError } = this.request;
         try {
 
-            const { headers } = this.request;
-            const r = await fetch(this.request.url, this.request);
+            const { headers, fetchProxy } = this.request;
+            const r = await (fetchProxy ?? fetch)(this.request.url, this.request);
             if (ensureSuccess) {
                 if (r.status > 300) {
                     log = logError;
