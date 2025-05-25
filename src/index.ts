@@ -1,5 +1,10 @@
 import { Agent } from "http";
 
+export type IPrimitive = number
+    | boolean | string
+    | bigint | Date
+    | null;
+
 type IBuilder = (r: Request) => Request;
 
 type IRequest = { fetchProxy?: any, url?: string, log?: (...a: any[]) => void, logError?: (...a: any[]) => void } & RequestInit;
@@ -150,11 +155,14 @@ class FetchBuilder {
         return this.append({ url });
     }
 
-    public queries(a: {[key: string]: string}, encode = true) {
+    public queries(a: {[key: string]: IPrimitive}, encode = true) {
         let start = this as FetchBuilder;
         for (const key in a) {
             if (Object.prototype.hasOwnProperty.call(a, key)) {
-                const element = a[key];
+                let element = a[key];
+                if (element instanceof Date) {
+                    element = element.toJSON();
+                }
                 start = start.query(key, element, encode);
             }
         }
