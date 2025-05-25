@@ -1,6 +1,6 @@
 import { Agent } from "http";
 
-export type IPrimitive = number
+type IPrimitive = number
     | boolean | string
     | bigint | Date
     | null;
