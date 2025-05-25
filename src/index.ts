@@ -150,6 +150,17 @@ class FetchBuilder {
         return this.append({ url });
     }
 
+    public queries(a: {[key: string]: string}, encode = true) {
+        let start = this as FetchBuilder;
+        for (const key in a) {
+            if (Object.prototype.hasOwnProperty.call(a, key)) {
+                const element = a[key];
+                start = start.query(key, element, encode);
+            }
+        }
+        return start;
+    }
+
     public async asText(ensureSuccess = true) {
         const { result } = await this.asTextResponse(ensureSuccess);
         return result;
