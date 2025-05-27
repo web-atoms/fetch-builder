@@ -210,7 +210,7 @@ class FetchBuilder {
     }
 
     public async execute<T>(ensureSuccess = true,
-        postProcessor: (r: Response) => T | Promise<T>): Promise<{ result: T, headers: any, status: number }> {
+        postProcessor: (r: Response) => T | Promise<T>): Promise<{ result: T, headers: any, status: number, response: Response }> {
 
         let { log, logError } = this.request;
         try {
@@ -262,7 +262,7 @@ class FetchBuilder {
                 log(`${r.status} ${r.statusText || "OK"}`)
                 log(result);
             }
-            return { result, headers: r.headers, status: r.status };
+            return { result, headers: r.headers, status: r.status, response: r };
         } catch (error) {
             log?.(error);
             throw error;
