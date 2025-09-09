@@ -179,15 +179,18 @@ class FetchBuilder {
         return result;
     }
 
-    public async asJson<T = any>(ensureSuccess = true) {
-        const { result } = await this.asJsonResponse<T>(ensureSuccess);
+    public async asJson<T = any>({ ensureSuccess = true, ensureJsonContentType = false }) {
+        const { result } = await this.asJsonResponse<T>({ ensureSuccess, ensureJsonContentType });
         return result;
     }
 
-    public async asJsonResponse<T = any>(ensureSuccess = true) {
+    public async asJsonResponse<T = any>({ ensureSuccess = true, ensureJsonContentType = true}) {
         return this.execute<T>(ensureSuccess, async (x) => {
-            if(!/json/i.test(x.headers.get("content-type"))) {
-                throw new Error(`Failed to parse json from ${this.request.url}\n${await x.text()}`);
+            if (ensureJsonContentType) {
+                const contentType = x.headers.get("content-type");
+                if(!/json/i.test(contentType)) {
+                    throw new Error(`Failed to parse json from ${this.request.url}\ncontent-type: ${contentType}\n${await x.text()}`);
+                }
             }
             return x.json() as T;
         });
