@@ -184,7 +184,7 @@ class FetchBuilder {
         return result;
     }
 
-    public async asJsonResponse<T = any>({ ensureSuccess = true, ensureJsonContentType = true} = {}) {
+    public async asJsonResponse<T = any>({ ensureSuccess = true, ensureJsonContentType = false} = {}) {
         return this.execute<T>(ensureSuccess, async (x) => {
             if (ensureJsonContentType) {
                 const contentType = x.headers.get("content-type");
