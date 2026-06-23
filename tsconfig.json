@@ -5,8 +5,6 @@
         "rootDir": "./src/",
         "incremental": true,
         "sourceMap": true,
-        "declaration": true,
-        "declarationMap": true,
         "moduleResolution": "bundler",
         "outDir": "./",
         "strict": false,
