@@ -154,7 +154,7 @@ export default class FetchBuilder {
     public queries(a: {[key: string]: IPrimitive}, encode = true) {
         let start = this as FetchBuilder;
         for (const key in a) {
-            if (Object.prototype.hasOwnProperty.call(a, key)) {
+            if (Object.hasOwn(a, key)) {
                 let element = a[key];
                 if (element instanceof Date) {
                     element = element.toJSON();

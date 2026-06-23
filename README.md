@@ -72,3 +72,19 @@ This will log only failed requests.
         .query("search-text", "social mail") // <-- this will be encoded
         .asJson();
 ```
+
+## Multiple Query String items as object
+```javascript
+    const client = FetchBuilder
+        .url("https://somewhere.com/")
+        .header("x-api-key", someKey)
+        .logWhenFailed(console.error);
+
+    const result = await client.get("/api/orders/reports")
+        .queries({
+            yearStart: 2015,
+            yearEnd: 2022,
+            searchText: "bla bla"
+        }) // <-- this will be encoded
+        .asJson();
+```
