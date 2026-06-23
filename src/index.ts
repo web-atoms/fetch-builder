@@ -5,7 +5,7 @@ type IPrimitive = number
 
 type IRequest = { fetchProxy?: any, url?: string, log?: (...a: any[]) => void, logError?: (...a: any[]) => void } & RequestInit;
 
-class FetchBuilder {
+export default class FetchBuilder {
 
     static JsonError: typeof JsonError;
     
@@ -306,7 +306,3 @@ class JsonError extends Error {
         super(message);
     }
 }
-
-FetchBuilder.JsonError = JsonError;
-
-export = FetchBuilder;
