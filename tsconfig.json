@@ -1,28 +1,41 @@
 {
     "compilerOptions": {
-        "target": "ES2021",
-        "module":"CommonJS",
+        "target": "es2022",
+        "module":"es2022",
+        "rootDir": "./src/",
         "incremental": true,
         "sourceMap": true,
         "declaration": true,
         "declarationMap": true,
+        "moduleResolution": "bundler",
         "outDir": "./",
-        "skipDefaultLibCheck": true,
-        "skipLibCheck": true,
+        "strict": false,
+        "tsBuildInfoFile": "./.tsbuildinfo",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "allowSyntheticDefaultImports": true,
+        "useDefineForClassFields": false,
+        "forceConsistentCasingInFileNames": true,
+        "removeComments": true,
+        "importHelpers": true,
+        "skipLibCheck": true,
+        "noUnusedLocals": true,
+        "jsx": "react",
         "jsxFactory": "XNode.create",
+        "types": ["node"],
         "lib": [
-            "ES2018",
-            "ES2021.WeakRef",
-            "esnext.disposable",
-            "ES2021.String",
-            "ES2022.Object"
+            "es6",
+            "dom",
+            "ES2020",
+            "ES2022",
+            "ES2017.String",
+            "ESNext.Disposable",
+            "ES2021.WeakRef"
         ]
     },
     "include": [
         "src/**/*"
-   ],
+    ],
     "exclude": [
 		"node_modules",
 		"tests"

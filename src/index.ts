@@ -1,11 +1,7 @@
-import { Agent } from "http";
-
 type IPrimitive = number
     | boolean | string
     | bigint | Date
     | null;
-
-type IBuilder = (r: Request) => Request;
 
 type IRequest = { fetchProxy?: any, url?: string, log?: (...a: any[]) => void, logError?: (...a: any[]) => void } & RequestInit;
 
@@ -205,7 +201,7 @@ class FetchBuilder {
     }
 
     public dispatcher(dispatcher: any) {
-        return this.append({ dispatcher });
+        return this.append({ dispatcher } as any);
     }
 
     public withFetchProxy(fetchProxy: any) {
@@ -226,7 +222,7 @@ class FetchBuilder {
                     log?.(`fetch: ${this.request.method ?? "GET"} ${this.request.url}`);
                     if (log && headers) {
                         for (const key in headers) {
-                            if ((Object.hasOwn && Object.hasOwn(headers,key)) || headers.hasOwnProperty(key)) {
+                            if ((Object.hasOwn(headers,key))) {
                                 log?.(`${key}: ${headers[key]}`);
                             }
                         }
@@ -267,7 +263,13 @@ class FetchBuilder {
             }
             return { result, headers: r.headers, status: r.status, response: r };
         } catch (error) {
-            log?.(error);
+            log?.({
+                url: this.request.url,
+                method: this.request.method,
+                error: error.cause
+                    ? `${error.cause.stack || error.cause}\n${error.stack || error}`
+                    : (error.stack || error)
+            });
             throw error;
         }
     }
